@@ -51,33 +51,28 @@ function addCourse() {
     
     let courseObj = {'courseId': courseId, 'courseName': cName, 'progression': progression, 'term': term, 'courseplan': courseplan};
         
+    if(courseId == "" || cName == "" || progression == "" || term == "" || courseplan == ""){
+        message.style.color = "rgb(212, 25, 0)";
+        message.style.marginTop = "10px";
+        message.style.height = "auto";
+        message.innerHTML = "Du måste fylla i alla fält korrekt!";
+    }else{
         fetch("http://localhost:3000/courses/", {
             method: 'POST',
             body: JSON.stringify(courseObj),
+            headers: {"Content-type": "application/json; charset=UTF-8"}
 
         })
-        .then(response => { 
+        .then(response => {
+           
             response.json()
             //kontrollerar response
-            if(response.status === 400){
-                message.style.color = "rgb(212, 25, 0)";
-                message.style.marginTop = "10px";
-                message.style.height = "auto";
-                message.innerHTML = "Du måste fylla i alla fält korrekt!";
-            }else{
-                if(response.status === 201) {
+                        
                     message.style.color = "green";
                     message.style.marginTop = "10px";
                     message.style.height = "auto";
                     message.innerHTML = "En kurs lades till!";
-                    window.setTimeout(function(){location.reload()},2000);
-                }else {
-                    message.style.color = "rgb(212, 25, 0)";
-                    message.style.marginTop = "10px";
-                    message.style.height = "auto";
-                    message.innerHTML = "något gick fel...";
-                }
-            }
+            
             
         })
         .then(data =>{
@@ -95,7 +90,7 @@ function addCourse() {
             console.log('Error', error);
         })
         
-        
+    }    
 }
 
 //radera en kurs
@@ -108,10 +103,11 @@ function deleteCourse(id) {
 
         response.json()
 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         message.style.color = "rgb(212, 25, 0)";
         message.style.marginTop = "10px";
         message.style.height = "auto";
-        message.innerHTML = "Kursen raderas!"; 
+        message.innerHTML = "Kursen raderas!";
         window.setTimeout(function(){location.reload()},2000);
     })
     .then(data =>{
