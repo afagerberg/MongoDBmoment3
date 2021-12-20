@@ -1,3 +1,4 @@
+//DT162G moment 3 del 3, av Alice Fagerberg
 const express = require('express');
 const router = express.Router();
 
@@ -9,20 +10,17 @@ router.use(
 )
 router.use(bodyParser.json());
 
-
-/********************************************* 
- * Initialize database and connection
- *********************************************/
+//initiera databasanslutning
  const mongoose = require('mongoose');
  mongoose.connect('mongodb://localhost/myCV', { useNewUrlParser: true, useUnifiedTopology: true });
  mongoose.Promise = global.Promise; // Global use of mongoose
  
  const db = mongoose.connection;
  db.on('error', console.error.bind(console, 'connection error:'));
- db.once('open', function (callback) { // Add the listener for db events 
+ db.once('open', function (callback) { // Lägger till lyssnare för db event 
 	 console.log("Connected to db");
 
-	 // Create DB scheme 
+	 // Skapa DB schema 
 	 const courseSchema = mongoose.Schema({
         courseId: String,
         courseName: String,
@@ -32,13 +30,11 @@ router.use(bodyParser.json());
 
     });
 
-    // Create scheme model
+    // Skapa schema model
     const Course = mongoose.model('Course', courseSchema )
 
 
-	/********************************************* 
- * Get complete user listing
- *********************************************/
+//get-Hämta alla kurser
 router.get('/', function(req, res, next) {
 
 	// Läs ut från databasen
@@ -66,18 +62,16 @@ router.get('/', function(req, res, next) {
 	});
   });
   
-  /********************************************* 
-   * Delete unique user id
-   *********************************************/
+  //delete-Radera kurs utifrån id
   router.delete('/:id', function(req, res, next) {
-	const id = req.params.id;
+	  const id = req.params.id;
 	  
-	  // Delete user _id from db
+	  // Radera course _id från db
 	  Course.deleteOne({ "_id": id }, function (err) {
 		  if (err) return handleError(err);
 	  });
 	  
-	  // Get the new user list from db as response data
+	  // Läs ut ny kurslist från db som response data
 	  Course.find(function(err, courses) {
 		  if(err) return console.error(err);
 	  
@@ -87,12 +81,10 @@ router.get('/', function(req, res, next) {
 	  });
   });
   
-  /********************************************* 
-   * Add new course
-   *********************************************/
+  //Lägg till ny kurs
   router.post('/', function(req, res, next) {
 
-	  // Create a new user
+	  // Skapa ny kurs
 	  const course = new Course({ 
 		courseId: req.body.courseId, 
 		courseName: req.body.courseName,
@@ -101,7 +93,7 @@ router.get('/', function(req, res, next) {
 		courseplan: req.body.courseplan
 	  });	
   
-	  // Save new user to db
+	  // Spara ny kurs till db
 	  course.save(function(err) {
 		  if(err) return console.error(err);
 	  });
@@ -112,25 +104,14 @@ router.get('/', function(req, res, next) {
   
   });
   
-  }); // DB connection
-
-
-
-/*get - hämtar kurs utifrån id
-router.get('/:id', function(req, res, next) {
-
-	let id = req.params.id;
-	let ind = -1;
-
-	for(let i=0; i < courses.length; i++){
-		if(courses[i]._id == id) ind = i; // hitta array index med _id = id   
-	} 
-	console.log(courses[ind]);
-	res.contentType('application/json');
-	res.send(ind>=0?courses[ind]:'{}'); // returnera kurs med id, om inte finns returnera {}
-});*/
-
-
-
+  }); 
+//Uppdatera
+  router.put('/:id', function(req, res, next) {
+	Course.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
+	  if (err) {return next(err);}
+	  else
+	  res.json(post);
+	});
+   });
 
 module.exports = router;
